@@ -25,3 +25,20 @@ jobs:
         docker build . --file Dockerfile --tag ${{ secrets.DOCKER_USERNAME }}/${{ secrets.NOME_IMAGEM }}:$GITHUB_RUN_NUMBER
         docker tag ${{ secrets.DOCKER_USERNAME }}/${{ secrets.NOME_IMAGEM }}:$GITHUB_RUN_NUMBER ${{ secrets.DOCKER_USERNAME }}/${{ secrets.NOME_IMAGEM }}:latest
         docker push ${{ secrets.DOCKER_USERNAME }}/${{ secrets.NOME_IMAGEM }}
+  
+  deploy:
+    name: Deploying in Digital Ocean Droplet
+    runs-on: do-api-agent
+    needs: [build]
+    
+    env: 
+      CONTAINER_NAME: "api"
+    
+    steps:
+      - name: 'Image pull'
+        run: |
+          docker pull ${{ secrets.DOCKER_USERNAME }}/${{ secrets.NOME_IMAGEM }}:latest
+          docker stop ${{ env.CONTAINER_NAME }}
+          docker container rm ${{ env.CONTAINER_NAME }}
+          docker run -d --name ${{ env.CONTAINER_NAME }} -p 80:80 ${{ secrets.DOCKER_USERNAME }}/${{ secrets.NOME_IMAGEM }}:latest
+              
