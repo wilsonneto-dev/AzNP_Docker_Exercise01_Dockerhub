@@ -28,7 +28,7 @@ jobs:
   
   deploy:
     name: Deploying in Digital Ocean Droplet
-    runs-on: do-api-agent
+    runs-on: [self-hosted]
     needs: [build]
     
     env: 
